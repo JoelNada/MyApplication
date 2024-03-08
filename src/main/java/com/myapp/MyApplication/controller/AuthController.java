@@ -2,6 +2,7 @@ package com.myapp.MyApplication.controller;
 
 
 import com.myapp.MyApplication.models.dto.AuthRequestDTO;
+import com.myapp.MyApplication.models.dto.AuthResponseDTO;
 import com.myapp.MyApplication.models.dto.RegisterDTO;
 import com.myapp.MyApplication.repository.UserRepository;
 import com.myapp.MyApplication.service.AuthService;
@@ -30,7 +31,7 @@ public class AuthController {
 
    @PostMapping("/login")
    public ResponseEntity<?> login(@RequestBody AuthRequestDTO authRequestDTO) throws BadCredentialsException {
-        String message = authService.login(authRequestDTO);
-        return ResponseEntity.ok(message);
+        AuthResponseDTO authResponseDTO = authService.login(authRequestDTO);
+        return ResponseEntity.ok().body(authResponseDTO);
    }
 }

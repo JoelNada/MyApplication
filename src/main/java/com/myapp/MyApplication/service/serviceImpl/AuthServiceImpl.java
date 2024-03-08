@@ -1,9 +1,11 @@
 package com.myapp.MyApplication.service.serviceImpl;
 
 import com.myapp.MyApplication.models.dto.AuthRequestDTO;
+import com.myapp.MyApplication.models.dto.AuthResponseDTO;
 import com.myapp.MyApplication.models.dto.RegisterDTO;
 import com.myapp.MyApplication.models.entity.User;
 import com.myapp.MyApplication.repository.UserRepository;
+import com.myapp.MyApplication.security.JwtTokenProvider;
 import com.myapp.MyApplication.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,17 +25,24 @@ public class AuthServiceImpl implements AuthService {
     private PasswordEncoder passwordEncoder;
     @Autowired
     private AuthenticationManager authenticationManager;
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @Override
-    public String login(AuthRequestDTO authRequestDTO) {
+    public AuthResponseDTO login(AuthRequestDTO authRequestDTO) {
         try {
-            Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(),
+            Authentication authentication = authenticationManager
+                    .authenticate(new UsernamePasswordAuthenticationToken(authRequestDTO.getUsername(),
                     authRequestDTO.getPassword()));
             SecurityContextHolder.getContext().setAuthentication(authentication);
-            return "Login Successful !!";
+            String token = jwtTokenProvider.generateToken(authentication);
+            AuthResponseDTO authResponseDTO = new AuthResponseDTO();
+            authResponseDTO.setToken(token);
+            authResponseDTO.setUsername(authRequestDTO.getUsername());
+            return authResponseDTO;
         }
         catch (BadCredentialsException e){
-            return "Invalid Credentials";
+            throw new BadCredentialsException("UnAuthorized !!");
         }
 
     }
